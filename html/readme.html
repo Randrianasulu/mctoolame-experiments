@@ -1,0 +1,110 @@
+<html>
+<head>
+<title>mctooLAMEd: MPEG 2 Layer II Multi-Channel Audio DEcoder</title>
+<style>	
+<!-- BODY { BACKGROUND: #FFFFFF; COLOR: #000000; FONT-SIZE: 10pt; FONT-FAMILY: verdana, sans-serif }
+	A { COLOR: #111177;  TEXT-DECORATION: none }
+       TD { font-size: medium; font-weight:normal }
+--!>
+</STYLE>
+</head>
+<body>
+<table border = 0 width="75%" align="center"><tr><td>
+                                                                                
+<h2>mctooLAMEd mpeg 2 layer 2 multi-channel audio DEcoder</h2>
+Copyright (C) 2003 Michael Cheng [mikecheng at NOT planckenergy com] remove the NOT
+http://www.planckenergy.com/</p>
+
+<h2>Contents</h2>
+<UL>
+<LI> LGPL 
+<LI> Introduction
+<LI> Usage
+<LI> Examples
+<LI> Contributors
+<LI> References
+</UL>
+
+<h2>LGPL</h2>
+<pre>
+All changes to the ISO source are licensed under the LGPL  
+(see LGPL.txt for details)
+
+mctooLAMEd is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+mctooLAMEd is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with mctooLAMEd; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+</pre>
+
+<h2>Introduction</h2>
+
+mctooLAMEd is an  Mpeg 2 Layer 2 Multi-Channel audio DEcoder.  It is based heavily on 
+<UL>
+    <LI>the ISO dist10 code 
+    <LI>toolame
+    <LI>work by myself and other contributors (see CONTRIBUTORS)
+</ul>
+This release is alpha-ish. It should produce valid mpeg streams from 5-channel or 6-channel AIFF files.
+
+<h2>History</h2>
+See <a href="history.html">history</a>
+<h2>Installation</h2>
+<OL>
+<LI> edit Makefile (at least change the architecture type [ARCH] to suit your machine)
+<LI> 'make'
+</ol>
+
+<h2>Usage</h2>
+
+<pre>
+         ./mctoolamed [options] [input file] [output file]
+
+Input File
+        A layerII mpeg audio file. 
+
+Input Options
+        (run mctooLAMEd without args for a full list)
+
+Output File
+        Outputs: A multichannel AIFF file
+                 A wav file for each channel (called left.wav, right.wav etc)
+
+</pre>
+
+<h2>Examples</h2>
+Don't get too fancy for the time being.
+<pre>
+	mctoolamed sound.mp2
+</pre>
+If "sound.mp2" was a 5.1 mpeg audio file, you should get a "sound.aiff" as well as 
+"left.wav", "right.wav", "centre.wav", "lfe.wav", "left_surround.wav", "right_surround.wav".<p>
+The WAVE file support was hacked in for my sanity (since I don't have anything to directly play 
+multi-channel AIFFs), and only works properly for 44.1kHz.
+
+<h2>To Do</h2>
+<UL>
+<LI> Fix audio output handling.
+<LI> Add support for more common audio file outputs? multi-channel wave?
+</UL>
+
+<h2>Contributors</h2>
+
+<UL>
+<LI> Mainly just me.
+</UL>
+
+<HR>
+[mikecheng at NOT planckenergy com] remove the NOT</p>
+
+</tr></td>
+</body>
+</html>
