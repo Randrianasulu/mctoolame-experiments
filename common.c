@@ -184,7 +184,7 @@ void WriteHdr (frame_params * fr_ps, FILE * s)
 *
 *******************************************************************************/
 
-void *mem_alloc (unsigned long block, char *item)
+void *mem_alloc (uint32_t block, char *item)
 {
   void *ptr;
 
@@ -267,7 +267,7 @@ MSB
 *****************************************************************************/
 
 
-void double_to_extended (double *pd, char ps[10])
+void double_to_extended (double *pd, uint8_t ps[10])
 {
 
 #ifdef  MACINTOSH
@@ -278,9 +278,9 @@ void double_to_extended (double *pd, char ps[10])
 
 /* fixed bus alignment error, HP 27-may-93 */
 
-  register unsigned long top2bits;
+  register uint32_t top2bits;
 
-  register unsigned short *ps2;
+  register uint16_t *ps2;
   register IEEE_DBL *p_dbl;
   register SANE_EXT *p_ext;
   SANE_EXT ext_align;
@@ -294,11 +294,11 @@ void double_to_extended (double *pd, char ps[10])
   p_ext->l1 |= ((p_dbl->hi >> 5) & 0x7fffL) | 0x8000L;
   p_ext->l2 = (p_dbl->hi << 27) & 0xf8000000L;
   p_ext->l2 |= ((p_dbl->lo >> 5) & 0x07ffffffL);
-  ps2 = (unsigned short *) &(p_dbl->lo);
+  ps2 = (uint16_t *) &(p_dbl->lo);
   ps2++;
   p_ext->s1 = (*ps2 << 11) & 0xf800;
 
-  c_align = (char *) p_ext;
+  c_align = (uint8_t *) p_ext;
   for (i = 0; i < 10; i++)
     ps[i] = c_align[i];
 
@@ -324,7 +324,7 @@ void double_to_extended (double *pd, char ps[10])
 *
 *****************************************************************************/
 
-void extended_to_double (char ps[10], double *pd)
+void extended_to_double (uint8_t ps[10], double *pd)
 {
 
 #ifdef  MACINTOSH
@@ -335,7 +335,7 @@ void extended_to_double (char ps[10], double *pd)
 
 /* fixed bus alignment error, HP 27-may-93 */
 
-  register unsigned long top2bits;
+  register uint32_t top2bits;
 
   register IEEE_DBL *p_dbl;
   register SANE_EXT *p_ext;
@@ -346,7 +346,7 @@ void extended_to_double (char ps[10], double *pd)
   p_dbl = (IEEE_DBL *) pd;
   p_ext = &ext_align;
 
-  c_align = (char *) p_ext;
+  c_align = (uint8_t *) p_ext;
   for (i = 0; i < 10; i++)
     c_align[i] = ps[i];
 
@@ -355,7 +355,7 @@ void extended_to_double (char ps[10], double *pd)
   p_dbl->hi |= (p_ext->l1 << 5) & 0xffff0L;
   p_dbl->hi |= (p_ext->l2 >> 27) & 0x1f;
   p_dbl->lo = (p_ext->l2 << 5) & 0xffffffe0L;
-  p_dbl->lo |= (unsigned long) ((p_ext->s1 >> 11) & 0x1f);
+  p_dbl->lo |= (uint32_t) ((p_ext->s1 >> 11) & 0x1f);
 
 #endif
 
@@ -374,7 +374,7 @@ int aiff_read_headers (FILE * file_ptr,
   int i;
   //MFC register long seek_offset;
 
-  char temp_sampleRate[10];
+  uint8_t temp_sampleRate[10];
   char *dummy;
   //MFC char holder;
   Chunk FormChunk;
@@ -460,17 +460,17 @@ int aiff_read_headers (FILE * file_ptr,
 
   CommChunk.ckSize = ident.ck_length;
 
-  if (fread (&CommChunk.numChannels, sizeof (short), 1, file_ptr) != 1)
+  if (fread (&CommChunk.numChannels, sizeof (int16_t), 1, file_ptr) != 1)
     return (-1);
 
-  if (fread (&CommChunk.numSampleFrames, sizeof (unsigned long), 1,
+  if (fread (&CommChunk.numSampleFrames, sizeof (uint32_t), 1,
 	     file_ptr) != 1)
     return (-1);
 
-  if (fread (&CommChunk.sampleSize, sizeof (short), 1, file_ptr) != 1)
+  if (fread (&CommChunk.sampleSize, sizeof (int16_t), 1, file_ptr) != 1)
     return (-1);
 
-  if (fread (CommChunk.sampleRate, sizeof (char[10]), 1, file_ptr) != 1)
+  if (fread (CommChunk.sampleRate, sizeof (uint8_t[10]), 1, file_ptr) != 1)
     return (-1);
 
 #ifdef MSDOS
@@ -485,7 +485,7 @@ int aiff_read_headers (FILE * file_ptr,
 
   *byte_per_sample = ceil ((double) CommChunk.sampleSize / 8);
 
-  for (i = 0; i < sizeof (char[10]); i++)
+  for (i = 0; i < sizeof (uint8_t[10]); i++)
     temp_sampleRate[i] = CommChunk.sampleRate[i];
 
   extended_to_double (temp_sampleRate, &aiff_ptr->sampleRate);
@@ -548,10 +548,10 @@ int aiff_read_headers (FILE * file_ptr,
 
   SndDChunk.ckSize = ident.ck_length;
 
-  if (fread (&SndDChunk.offset, sizeof (unsigned long), 1, file_ptr) != 1)
+  if (fread (&SndDChunk.offset, sizeof (uint32_t), 1, file_ptr) != 1)
     return (-1);
 
-  if (fread (&SndDChunk.blockSize, sizeof (unsigned long), 1, file_ptr) != 1)
+  if (fread (&SndDChunk.blockSize, sizeof (uint32_t), 1, file_ptr) != 1)
     return (-1);
 
 #ifdef MSDOS
@@ -614,21 +614,21 @@ int aiff_write_headers (FILE * file_ptr, IFF_AIFF * aiff_ptr)
   int i;
   //MFC register long seek_offset;
 
-  char temp_sampleRate[10];
+  uint8_t temp_sampleRate[10];
 
   Chunk FormChunk;
   CommonChunk CommChunk;
   SoundDataChunk SndDChunk;
 
 
-  strcpy (FormChunk.ckID, IFF_ID_FORM);
-  strcpy (FormChunk.formType, IFF_ID_AIFF);
-  strcpy (CommChunk.ckID, IFF_ID_COMM);	/*7/7/93,SR,changed FormChunk to CommChunk */
+  strncpy (FormChunk.ckID, IFF_ID_FORM, 4);
+  strncpy (FormChunk.formType, IFF_ID_AIFF, 4);
+  strncpy (CommChunk.ckID, IFF_ID_COMM, 4);	/*7/7/93,SR,changed FormChunk to CommChunk */
 
 
   double_to_extended (&aiff_ptr->sampleRate, temp_sampleRate);
 
-  for (i = 0; i < sizeof (char[10]); i++)
+  for (i = 0; i < sizeof (uint8_t[10]); i++)
     CommChunk.sampleRate[i] = temp_sampleRate[i];
 
   CommChunk.numChannels = aiff_ptr->numChannels;
@@ -668,20 +668,20 @@ int aiff_write_headers (FILE * file_ptr, IFF_AIFF * aiff_ptr)
   if (fwrite (CommChunk.ckID, sizeof (ID), 1, file_ptr) != 1)
     return (-1);
 
-  if (fwrite (&CommChunk.ckSize, sizeof (long), 1, file_ptr) != 1)
+  if (fwrite (&CommChunk.ckSize, sizeof (int32_t), 1, file_ptr) != 1)
     return (-1);
 
-  if (fwrite (&CommChunk.numChannels, sizeof (short), 1, file_ptr) != 1)
+  if (fwrite (&CommChunk.numChannels, sizeof (int16_t), 1, file_ptr) != 1)
     return (-1);
 
-  if (fwrite (&CommChunk.numSampleFrames, sizeof (unsigned long), 1,
+  if (fwrite (&CommChunk.numSampleFrames, sizeof (uint32_t), 1,
 	      file_ptr) != 1)
     return (-1);
 
-  if (fwrite (&CommChunk.sampleSize, sizeof (short), 1, file_ptr) != 1)
+  if (fwrite (&CommChunk.sampleSize, sizeof (int16_t), 1, file_ptr) != 1)
     return (-1);
 
-  if (fwrite (CommChunk.sampleRate, sizeof (char[10]), 1, file_ptr) != 1)
+  if (fwrite (CommChunk.sampleRate, sizeof (uint8_t[10]), 1, file_ptr) != 1)
     return (-1);
 
   /* 960815 FdB put the sound data chunk after the common chunk */
@@ -715,7 +715,7 @@ int open_bit_stream_r (Bit_stream * bs,	/* bit stream structure */
 		       char *bs_filenam,	/* name of the bit stream file */
 		       int size /* size of the buffer */ )
 {
-  register unsigned long n;
+  register uint32_t n;
   register int i = 0, j = 0;
   register unsigned char flag = 1;
   unsigned char val;
@@ -804,7 +804,7 @@ unsigned int get1bit (Bit_stream * bs)
   }
 }
 
-unsigned long getbits (Bit_stream * bs, int n)
+uint32_t getbits (Bit_stream * bs, int n)
 {
   unsigned long val;
   int i;
@@ -865,10 +865,10 @@ static void bytes_to_bits (char *w_code, unsigned char *in, int nbytes)
 
 int seek_sync_mpg (Bit_stream * bs)
 {				/* bit stream structure */
-  unsigned long val = 0;
+  uint32_t val = 0;
   unsigned char byte;
   unsigned char bytes[2000];	/* bytes of an MPEG-1 frame */
-  long sync = SYNC_WORD;	/* sync word maximum 32 bits */
+  int32_t sync = SYNC_WORD;	/* sync word maximum 32 bits */
   int N = SYNC_WORD_LNGTH;	/* sync word length */
   int i, sync_bytes = N / 8;
   int version, layer, br_index, bit_rate, c, f_sampl=0, padding, slots, nbytes;
@@ -954,10 +954,10 @@ int seek_sync_mpg (Bit_stream * bs)
 int seek_sync_ext (Bit_stream * bs, frame_params * fr_ps)
 {				/* bit stream structure */
   layer *info = fr_ps->header;
-  unsigned long val = 0;
+  uint32_t val = 0;
   unsigned char byte;
   unsigned char bytes[2048];	/* bytes of an MPEG-2 extention frame */
-  long sync = EXT_SYNCWORD;	/* sync word maximum 32 bits */
+  int32_t sync = EXT_SYNCWORD;	/* sync word maximum 32 bits */
   int N = SYNC_WORD_LNGTH;	/* sync word length */
   int i, sync_bytes = N / 8;
   int nbytes, lcrc, la_bytes, la_bits;

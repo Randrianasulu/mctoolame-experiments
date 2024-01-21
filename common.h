@@ -6,7 +6,7 @@
 *  Global Include Files
 *
 ***********************************************************************/
-
+#include <stdint.h>
 #include        <stdio.h>
 #include        <string.h>
 #include        <math.h>
@@ -182,8 +182,8 @@ typedef struct  bit_stream {
     FILE        *pt;            /* pointer to bit stream device */
     unsigned char *bits;        /* bit stream bit buffer */
     int         header_size;	/* header of bitstream (in number of bytes) */
-    long        totbits;        /* bit counter of bit stream */
-    long        curpos;         /* bit pointer of bit stream */
+    int32_t        totbits;        /* bit counter of bit stream */
+    int32_t        curpos;         /* bit pointer of bit stream */
     int         mode;           /* bit stream open in read or write mode */
     int         eobs;           /* end of bit stream flag */
     char        format;		/* format of file in rd mode (BINARY/ASCII) */
@@ -218,14 +218,14 @@ typedef struct {
 /* Double and SANE Floating Point Type Definitions */
 
 typedef struct  IEEE_DBL_struct {
-				unsigned long   hi;
-				unsigned long   lo;
+				uint32_t   hi;
+				uint32_t   lo;
 } IEEE_DBL;
 
 typedef struct  SANE_EXT_struct {
-				unsigned long   l1;
-				unsigned long   l2;
-				unsigned short  s1;
+				uint32_t   l1;
+				uint32_t   l2;
+				uint16_t  s1;
 } SANE_EXT;
 
 /* AIFF Type Definitions */
@@ -234,46 +234,46 @@ typedef char	 ID[4];
 
 typedef struct  identifier_struct{
 		 ID name;
-		 long ck_length;
+		 int32_t ck_length;
 }identifier;
 
 
 typedef struct  ChunkHeader_struct {
 				ID      ckID;
-				long    ckSize;
+				int32_t    ckSize;
 } ChunkHeader;
 
 typedef struct  Chunk_struct {
 				ID      ckID;
-				long    ckSize;
+				int32_t    ckSize;
 				ID      formType;
 } Chunk;
 
 typedef struct  CommonChunk_struct {
 				ID              ckID;
-				long            ckSize;
-				short           numChannels;
-				unsigned long   numSampleFrames;
-				short           sampleSize;
-				char            sampleRate[10];
+				int32_t            ckSize;
+				int16_t           numChannels;
+				uint32_t   numSampleFrames;
+				int16_t           sampleSize;
+				uint8_t            sampleRate[10];
 } CommonChunk;
 
 typedef struct  SoundDataChunk_struct {
 				ID              ckID;
-				long            ckSize;
-				unsigned long   offset;
-				unsigned long   blockSize;
+				int32_t            ckSize;
+				uint32_t   offset;
+				uint32_t   blockSize;
 } SoundDataChunk;
 
 typedef struct  blockAlign_struct {
-				unsigned long   offset;
-				unsigned long   blockSize;
+				uint32_t   offset;
+				uint32_t   blockSize;
 } blockAlign;
 
 typedef struct  IFF_AIFF_struct {
-				short           numChannels;
-                unsigned long   numSampleFrames;
-                short           sampleSize;
+				int16_t           numChannels;
+                uint32_t   numSampleFrames;
+                int16_t           sampleSize;
 		double          sampleRate;
                 ID/*char**/     sampleType;/*must be allocated 21.6.93 SR*/
                 blockAlign      blkAlgn;
@@ -303,17 +303,17 @@ extern int            js_bound(int, int);
 extern void           hdr_to_frps(frame_params*);
 extern void	      mc_hdr_to_frps(frame_params*);
 extern void           WriteHdr(frame_params*, FILE*);
-extern void           *mem_alloc(unsigned long, char*);
+extern void           *mem_alloc(uint32_t, char*);
 extern void           mem_free(void**);
-extern void           double_to_extended(double*, char[10]);
-extern void           extended_to_double(char[10], double*);
+extern void           double_to_extended(double*, uint8_t[10]);
+extern void           extended_to_double(uint8_t[10], double*);
 extern int	      aiff_read_headers(FILE*, IFF_AIFF*, int*);
 extern int	      aiff_seek_to_sound_data(FILE*);
 extern int            aiff_write_headers(FILE*, IFF_AIFF*);
 extern int            open_bit_stream_r(Bit_stream*, char*, int);
 extern void           close_bit_stream_r(Bit_stream*);
 extern unsigned int   get1bit(Bit_stream*);
-extern unsigned long  getbits(Bit_stream*, int);
+extern uint32_t  getbits(Bit_stream*, int);
 extern void	      program_information(void);
 extern int            end_bs(Bit_stream*);
 extern int            seek_sync_mpg(Bit_stream*);

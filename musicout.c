@@ -9,6 +9,7 @@
 #include "subband.h"
 #include "musicout.h"
 #include <stdio.h>
+#include <stdint.h>
 
 /********************************************************************
 *
@@ -26,7 +27,7 @@ double S_freq;
 
 int main (int argc, char **argv)
 {				/* R.S. 7 channels for ML */
-  typedef long PCM[7][3][SBLIMIT];
+  typedef int32_t PCM[7][3][SBLIMIT];
   PCM *pcm_sample;
   PCM *pcm_sample_ml;		/* 10/03/1995 JMZ Multilingual */
   typedef unsigned int SAM[7][3][SBLIMIT];
@@ -48,8 +49,8 @@ int main (int argc, char **argv)
   Bit_stream bs_mpg, bs_ext, bs_mc;
   FILE *musicout, *lfe=NULL;
   FILE *musicout_ml=NULL;		/* 10/03/1995 JMZ Multilingual */
-  unsigned long sample_frames;
-  unsigned long sample_frames_ml;
+  uint32_t sample_frames;
+  uint32_t sample_frames_ml;
   int i, jj, j, k, ii, stereo=1, done = FALSE, clip=0, sync, f;
   int error_protection, crc_check = 1;
   int crc_error_count, total_error_count;
@@ -62,7 +63,7 @@ int main (int argc, char **argv)
   unsigned int bit_alloc[7][SBLIMIT], scfsi[7][SBLIMIT],
     scale_index[7][3][SBLIMIT];
   unsigned int bit_alloc_ml[7][SBLIMIT], scfsi_ml[7][SBLIMIT], scale_index_ml[7][3][SBLIMIT];	/* 09/03/1995 JMZ Multilingual */
-  unsigned long bitsPerSlot, samplesPerFrame=8;
+  uint32_t bitsPerSlot, samplesPerFrame=8;
   IFF_AIFF pcm_aiff_data;
   char encoded_file_name[MAX_NAME_SIZE];
   char encoded_file_name1[MAX_NAME_SIZE];	/* 8/11/92.sr */
@@ -82,9 +83,9 @@ int main (int argc, char **argv)
   int layer_I_frames=3;
   int mpeg = 2;			/* R.S. mpeg default for mc */
   int channels = 2, mc_channel = 0;
-  unsigned long frameNum = 0L;
-  unsigned long frameMod = 1L;
-  unsigned long frameBits;
+  uint32_t frameNum = 0L;
+  uint32_t frameMod = 1L;
+  uint32_t frameBits;
 /*****************************************************************************/
   int hi, hu, ho;
   FILE *fp1=NULL;
@@ -98,24 +99,24 @@ int main (int argc, char **argv)
   /* Most large variables are declared dynamically to ensure
      compatibility with smaller machines */
 
-  pcm_sample = (PCM *) mem_alloc ((long) sizeof (PCM), "PCM Samp");
-  pcm_sample_ml = (PCM *) mem_alloc ((long) sizeof (PCM), "PCM Samp");
-  sample = (SAM *) mem_alloc ((long) sizeof (SAM), "Sample");
-  sample_ml = (SAM *) mem_alloc ((long) sizeof (SAM), "Sample");
-  fraction = (FRA *) mem_alloc ((long) sizeof (FRA), "fraction");	/* R.S. */
-  fraction_ml = (FRA *) mem_alloc ((long) sizeof (FRA), "fraction");	/* R.S. */
-  fraction_help = (FRA_HELP *) mem_alloc ((long) sizeof (FRA_HELP), "fraction");
+  pcm_sample = (PCM *) mem_alloc ((int32_t) sizeof (PCM), "PCM Samp");
+  pcm_sample_ml = (PCM *) mem_alloc ((int32_t) sizeof (PCM), "PCM Samp");
+  sample = (SAM *) mem_alloc ((int32_t) sizeof (SAM), "Sample");
+  sample_ml = (SAM *) mem_alloc ((int32_t) sizeof (SAM), "Sample");
+  fraction = (FRA *) mem_alloc ((int32_t) sizeof (FRA), "fraction");	/* R.S. */
+  fraction_ml = (FRA *) mem_alloc ((int32_t) sizeof (FRA), "fraction");	/* R.S. */
+  fraction_help = (FRA_HELP *) mem_alloc ((int32_t) sizeof (FRA_HELP), "fraction");
   fraction_help_ml =
-    (FRA_HELP *) mem_alloc ((long) sizeof (FRA_HELP), "fraction");
-  pred_buf = (FRA_BUF *) mem_alloc ((long) sizeof (FRA_BUF), "pred_buf");
+    (FRA_HELP *) mem_alloc ((int32_t) sizeof (FRA_HELP), "fraction");
+  pred_buf = (FRA_BUF *) mem_alloc ((int32_t) sizeof (FRA_BUF), "pred_buf");
 
-  w = (VE *) mem_alloc ((long) sizeof (VE), "w");
+  w = (VE *) mem_alloc ((int32_t) sizeof (VE), "w");
 
   bs_mpg.header_size = 0;
-  bs_mpg.bits = (unsigned char *) mem_alloc ((long) 13824, "MPG Bits");
+  bs_mpg.bits = (unsigned char *) mem_alloc ((int32_t) 13824, "MPG Bits");
   bs_ext.header_size = 0;
-  bs_ext.bits = (unsigned char *) mem_alloc ((long) 16376, "EXT Bits");
-  bs_mc.bits = (unsigned char *) mem_alloc ((long) 30208, "MC Bits");
+  bs_ext.bits = (unsigned char *) mem_alloc ((int32_t) 16376, "EXT Bits");
+  bs_mc.bits = (unsigned char *) mem_alloc ((int32_t) 30208, "MC Bits");
 
   fr_ps.header = &info;
   fr_ps.bs_mpg = &bs_mpg;
@@ -735,10 +736,10 @@ int main (int argc, char **argv)
 	  /* lfe_tmp[jj] = (short int) (info.lfe_spl_fraction[jj] * SCALE); */
 	  double foo = floor (info.lfe_spl_fraction[jj] * SCALE + 0.5);
 
-	  if (foo >= (long) SCALE) {
+	  if (foo >= (int32_t) SCALE) {
 	    lfe_tmp[jj] = SCALE - 1;
 	    clip++;
-	  } else if (foo < (long) -SCALE) {
+	  } else if (foo < (int32_t) -SCALE) {
 	    lfe_tmp[jj] = -SCALE;
 	    clip++;
 	  } else
@@ -968,7 +969,7 @@ int main (int argc, char **argv)
     pcm_aiff_data.numSampleFrames = sample_frames;
     pcm_aiff_data.sampleSize = 16;
     pcm_aiff_data.sampleRate = s_freq[info.sampling_frequency] * 1000;
-    strcpy (pcm_aiff_data.sampleType, IFF_ID_SSND);
+    strncpy (pcm_aiff_data.sampleType, IFF_ID_SSND, 4);
     pcm_aiff_data.blkAlgn.offset = 0;
     pcm_aiff_data.blkAlgn.blockSize = 0;
 
@@ -985,7 +986,7 @@ int main (int argc, char **argv)
       pcm_aiff_data.sampleRate = s_freq[info.sampling_frequency] * 1000;
       if (fr_ps.header->multi_lingual_fs == 1)
 	pcm_aiff_data.sampleRate *= 0.5;
-      strcpy (pcm_aiff_data.sampleType, IFF_ID_SSND);
+      strncpy (pcm_aiff_data.sampleType, IFF_ID_SSND, 4);
       pcm_aiff_data.blkAlgn.offset = 0;
       pcm_aiff_data.blkAlgn.blockSize = 0;
 
@@ -1000,7 +1001,7 @@ int main (int argc, char **argv)
       pcm_aiff_data.numSampleFrames = sample_frames / 96;
       pcm_aiff_data.sampleSize = 16;
       pcm_aiff_data.sampleRate = (s_freq[info.sampling_frequency] * 1000) / 96;
-      strcpy (pcm_aiff_data.sampleType, IFF_ID_SSND);
+      strncpy (pcm_aiff_data.sampleType, IFF_ID_SSND, 4);
       pcm_aiff_data.blkAlgn.offset = 0;
       pcm_aiff_data.blkAlgn.blockSize = 0;
 

@@ -10,7 +10,7 @@
 #define	 CREATR_DEC_AIFF   "Sd2a"	/* '-> " . 7/13/92. sr */
 #define	 CREATR_DEC_BNRY   "????"	/* '-> " . 7/13/92. sr */
 
-#define   SYNC_WORD         (long) 0xfff
+#define   SYNC_WORD         (int32_t) 0xfff
 #define   SYNC_WORD_LNGTH   12
 
 #define   MUTE              0

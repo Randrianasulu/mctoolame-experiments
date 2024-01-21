@@ -1,10 +1,11 @@
 #include "common.h"
 #include "audio_write.h"
+#include <stdint.h>
 
-void out_fifo (long pcm_sample[7][3][SBLIMIT],
+void out_fifo (int32_t pcm_sample[7][3][SBLIMIT],
 	       int num,
 	       frame_params * fr_ps,
-	       int done, FILE * outFile, unsigned long *psampFrames, int ch)
+	       int done, FILE * outFile, uint32_t *psampFrames, int ch)
 {
   int i, j, l;
   static short int outsamp[1600];
@@ -69,7 +70,7 @@ int wave_header[WAVEHEADERSIZE] = {
   //16bitmono
   0x02, 0x00, 0x10, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00, 0xff, 0xff, 0xff
 };
-unsigned long samples_written = 0;
+uint32_t samples_written = 0;
 
 
 void init_audio_outputs(int numchan) {
@@ -116,10 +117,10 @@ void deinit_audio_outputs(void) {
   }
 }
 
-void out_fifo_new (long pcm_sample[7][3][SBLIMIT],
+void out_fifo_new (int32_t pcm_sample[7][3][SBLIMIT],
 	       int num,
 	       frame_params * fr_ps,
-	       int done, FILE * outFile, unsigned long *psampFrames, int numch)
+	       int done, FILE * outFile, uint32_t *psampFrames, int numch)
 {
   int gr, sb, ch;
   static short int outsamp[1600];
@@ -147,10 +148,10 @@ void out_fifo_new (long pcm_sample[7][3][SBLIMIT],
 
 }
 
-void out_fifo_ml (long pcm_sample[7][3][SBLIMIT],
+void out_fifo_ml (int32_t pcm_sample[7][3][SBLIMIT],
 		  int num,
 		  frame_params * fr_ps,
-		  int done, FILE * outFile, unsigned long *psampFrames)
+		  int done, FILE * outFile, uint32_t *psampFrames)
 {
   int i, j, l;
   int n_ml_ch = fr_ps->header->no_of_multi_lingual_ch;
