@@ -22,7 +22,7 @@ OBJ = $(c_sources:.c=.o)
 OPTIM = -O3
 
 # These flags are pretty much mandatory
-REQUIRED = -DNDEBUG -DINLINE=inline
+REQUIRED = -DNDEBUG -DINLINE=inline -DAugmentation_7ch
 
 #pick your architecture
 #ARCH = -march=pentium4
