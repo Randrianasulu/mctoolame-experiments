@@ -2,6 +2,12 @@
 #include "audio_write.h"
 #include <stdint.h>
 
+//! Byte swap short
+static int16_t swap_int16( int16_t val ) 
+{
+    return (val << 8) | ((val >> 8) & 0xFF);
+}
+
 void out_fifo (int32_t pcm_sample[7][3][SBLIMIT],
 	       int num,
 	       frame_params * fr_ps,
@@ -27,7 +33,7 @@ void out_fifo (int32_t pcm_sample[7][3][SBLIMIT],
 	    fwrite (outsamp, 2, 1600, outFile);
 	    k = 0;
 	  }
-	  outsamp[k++] = pcm_sample[l][i][j];
+	  outsamp[k++] = swap_int16(pcm_sample[l][i][j]); // swap output samples, aiff on litte endian
 	}
   } else if (k > 0) {
     fwrite (outsamp, 2, (int) k, outFile);
