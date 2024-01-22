@@ -153,7 +153,7 @@ int main (int argc, char **argv)
   if (argc == 1) {		/* no command line args -> interact */
     do {
       printf ("Enter encoded file name <required>: ");
-      fgets (encoded_file_name, 255, stdin);
+      fgets (encoded_file_name, 81, stdin);
       f = strlen (encoded_file_name) - 4;	/*cut off extension.8/11/92.sr */
       if (encoded_file_name[0] == NULL_CHAR)
 	printf ("Encoded file name is required. \n");
@@ -163,7 +163,7 @@ int main (int argc, char **argv)
     strcpy (encoded_file_name1, encoded_file_name);	/*8/11/92.sr */
     strcpy (&encoded_file_name1[f], DFLT_OPEXT_DEC);	/*.dec-extension.8/11/92.sr */
     printf ("Enter MPEG decoded file name <%s>: ", encoded_file_name1);
-    fgets (decoded_file_name, 255, stdin);
+    fgets (decoded_file_name, 81, stdin);
     if (decoded_file_name[0] == NULL_CHAR)
       strcpy (decoded_file_name, encoded_file_name1);
 
@@ -965,13 +965,15 @@ int main (int argc, char **argv)
       pcm_aiff_data.numChannels = 7;
     else
 #endif
-      pcm_aiff_data.numChannels = stereo + mc_channel;
+    pcm_aiff_data.numChannels = stereo + mc_channel;
     pcm_aiff_data.numSampleFrames = sample_frames;
     pcm_aiff_data.sampleSize = 16;
     pcm_aiff_data.sampleRate = s_freq[info.sampling_frequency] * 1000;
     strncpy (pcm_aiff_data.sampleType, IFF_ID_SSND, 4);
     pcm_aiff_data.blkAlgn.offset = 0;
     pcm_aiff_data.blkAlgn.blockSize = 0;
+
+    //printf("Musiout.c: numChannel %i \n ", pcm_aiff_data.numChannels);
 
     if (aiff_write_headers (musicout, &pcm_aiff_data) == -1) {
       fprintf (stderr, "Could not write AIFF headers to \"%s\"\n",

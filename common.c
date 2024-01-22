@@ -278,14 +278,14 @@ void double_to_extended (double *pd, uint8_t ps[10])
 
 /* fixed bus alignment error, HP 27-may-93 */
 
-  register uint32_t top2bits;
+  register uint32_t top2bits=0;
 
   register uint16_t *ps2;
   register IEEE_DBL *p_dbl;
   register SANE_EXT *p_ext;
   SANE_EXT ext_align;
   char *c_align;
-  int i;
+  int i=0;
 
   p_dbl = (IEEE_DBL *) pd;
   p_ext = &ext_align;
@@ -298,7 +298,7 @@ void double_to_extended (double *pd, uint8_t ps[10])
   ps2++;
   p_ext->s1 = (*ps2 << 11) & 0xf800;
 
-  c_align = (uint8_t *) p_ext;
+  c_align = (char *) p_ext;
   for (i = 0; i < 10; i++)
     ps[i] = c_align[i];
 
@@ -306,6 +306,89 @@ void double_to_extended (double *pd, uint8_t ps[10])
 
 }
 
+//byteswap from stackoverflow 
+// https://stackoverflow.com/questions/2182002/how-to-convert-big-endian-to-little-endian-in-c-without-using-library-functions
+
+
+
+//! Byte swap unsigned short
+uint16_t swap_uint16( uint16_t val ) 
+{
+    return (val << 8) | (val >> 8 );
+}
+
+//! Byte swap short
+int16_t swap_int16( int16_t val ) 
+{
+    return (val << 8) | ((val >> 8) & 0xFF);
+}
+
+//! Byte swap unsigned int
+uint32_t swap_uint32( uint32_t val )
+{
+    val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF ); 
+    return (val << 16) | (val >> 16);
+}
+
+//! Byte swap int
+int32_t swap_int32( int32_t val )
+{
+    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF ); 
+    return (val << 16) | ((val >> 16) & 0xFFFF);
+}
+
+#define FloatToUnsigned(f) ((uint32_t)(((int32_t)(f - 2147483648.0)) + 2147483647) + 1)
+
+
+static void ConvertToIeeeExtended(double num, char bytes[10])
+ {
+     int    sign;
+     int expon;
+     double fMant, fsMant;
+     uint32_t hiMant, loMant;
+  
+     if (num < 0) {
+         sign = 0x8000;
+         num *= -1;
+     } else {
+         sign = 0;
+     }
+  
+     if (num == 0) {
+         expon = 0; hiMant = 0; loMant = 0;
+     }
+     else {
+         fMant = frexp(num, &expon);
+         if ((expon > 16384) || !(fMant < 1)) {    /* Infinity or NaN */
+             expon = sign|0x7FFF; hiMant = 0; loMant = 0; /* infinity */
+         }
+         else {    /* Finite */
+             expon += 16382;
+             if (expon < 0) {    /* denormalized */
+                 fMant = ldexp(fMant, expon);
+                 expon = 0;
+             }
+             expon |= sign;
+             fMant = ldexp(fMant, 32);
+             fsMant = floor(fMant);
+             hiMant = FloatToUnsigned(fsMant);
+             fMant = ldexp(fMant - fsMant, 32);
+             fsMant = floor(fMant);
+             loMant = FloatToUnsigned(fsMant);
+         }
+     }
+  
+     bytes[0] = expon >> 8;
+     bytes[1] = expon;
+     bytes[2] = hiMant >> 24;
+     bytes[3] = hiMant >> 16;
+     bytes[4] = hiMant >> 8;
+     bytes[5] = hiMant;
+     bytes[6] = loMant >> 24;
+     bytes[7] = loMant >> 16;
+     bytes[8] = loMant >> 8;
+     bytes[9] = loMant;
+}
 
 /*****************************************************************************
 *
@@ -346,7 +429,7 @@ void extended_to_double (uint8_t ps[10], double *pd)
   p_dbl = (IEEE_DBL *) pd;
   p_ext = &ext_align;
 
-  c_align = (uint8_t *) p_ext;
+  c_align = (char *) p_ext;
   for (i = 0; i < 10; i++)
     c_align[i] = ps[i];
 
@@ -614,26 +697,35 @@ int aiff_write_headers (FILE * file_ptr, IFF_AIFF * aiff_ptr)
   int i;
   //MFC register long seek_offset;
 
-  uint8_t temp_sampleRate[10];
+  char temp_sampleRate[10];
 
   Chunk FormChunk;
   CommonChunk CommChunk;
   SoundDataChunk SndDChunk;
 
 
-  strncpy (FormChunk.ckID, IFF_ID_FORM, 4);
-  strncpy (FormChunk.formType, IFF_ID_AIFF, 4);
-  strncpy (CommChunk.ckID, IFF_ID_COMM, 4);	/*7/7/93,SR,changed FormChunk to CommChunk */
+  strcpy (FormChunk.ckID, IFF_ID_FORM);
+  strcpy (FormChunk.formType, IFF_ID_AIFF);
+  strcpy (CommChunk.ckID, IFF_ID_COMM);	/*7/7/93,SR,changed FormChunk to CommChunk */
 
 
-  double_to_extended (&aiff_ptr->sampleRate, temp_sampleRate);
+  //double_to_extended (&aiff_ptr->sampleRate, temp_sampleRate);
+  double samplerate = aiff_ptr->sampleRate;
+  
+  ConvertToIeeeExtended(samplerate, temp_sampleRate);
 
   for (i = 0; i < sizeof (uint8_t[10]); i++)
     CommChunk.sampleRate[i] = temp_sampleRate[i];
 
+  for (i = 0; i < sizeof (uint8_t[10]); i++)
+  //printf("common.C: CommChuck sampleRate  %d member %i \n", CommChunk.sampleRate[i], i);
+  
   CommChunk.numChannels = aiff_ptr->numChannels;
+  //printf("common.C: CommChuck numchannels %d \n", CommChunk.numChannels);
   CommChunk.numSampleFrames = aiff_ptr->numSampleFrames;
+  //printf("common.C: CommChuck numSampleFrames %d \n", CommChunk.numSampleFrames);
   CommChunk.sampleSize = aiff_ptr->sampleSize;
+  //printf("common.C: CommChuck sample size %d \n", CommChunk.sampleSize);
   SndDChunk.offset = aiff_ptr->blkAlgn.offset + 2;
   SndDChunk.blockSize = aiff_ptr->blkAlgn.blockSize;
   strncpy ( /*(unsigned long *) */ SndDChunk.ckID, aiff_ptr->sampleType, 4);
@@ -641,6 +733,8 @@ int aiff_write_headers (FILE * file_ptr, IFF_AIFF * aiff_ptr)
   CommChunk.ckSize = sizeof (CommChunk.numChannels) +
     sizeof (CommChunk.numSampleFrames) + sizeof (CommChunk.sampleSize) +
     sizeof (CommChunk.sampleRate);
+    
+//    printf("common.c: CommChuck size %i \n", CommChunk.ckSize);
 
   SndDChunk.ckSize = sizeof (SoundDataChunk) - sizeof (ChunkHeader) +
     (CommChunk.sampleSize + BITS_IN_A_BYTE - 1) / BITS_IN_A_BYTE *
@@ -648,12 +742,25 @@ int aiff_write_headers (FILE * file_ptr, IFF_AIFF * aiff_ptr)
 
   FormChunk.ckSize = sizeof (Chunk) + SndDChunk.ckSize + sizeof (ChunkHeader) +
     CommChunk.ckSize;
+    
+//    printf("common.c : FormChunk.ckSize = %i \n", FormChunk.ckSize);
+
+// NOTE - little endian writer only for now!
 
   if (fseek (file_ptr, 0, SEEK_SET) != 0)
     return (-1);
-
-  if (fwrite (&FormChunk, sizeof (Chunk), 1, file_ptr) != 1)
+    
+  if (fwrite (&FormChunk.ckID, sizeof (ID), 1, file_ptr) != 1)
     return (-1);
+    int32_t swapped_chunk_size = swap_int32(FormChunk.ckSize+2);
+  if (fwrite (&swapped_chunk_size, sizeof (int32_t), 1, file_ptr) != 1)
+    return (-1);
+  if (fwrite (&FormChunk.formType, sizeof (ID), 1, file_ptr) != 1)
+    return (-1);
+
+    
+
+
 /*
    if (fwrite(&SndDChunk, sizeof(SoundDataChunk), 1, file_ptr) != 1)
       return(-1);
@@ -667,26 +774,42 @@ int aiff_write_headers (FILE * file_ptr, IFF_AIFF * aiff_ptr)
 
   if (fwrite (CommChunk.ckID, sizeof (ID), 1, file_ptr) != 1)
     return (-1);
-
-  if (fwrite (&CommChunk.ckSize, sizeof (int32_t), 1, file_ptr) != 1)
+    
+  int32_t comm_swapped_size = swap_int32(CommChunk.ckSize);
+  if (fwrite (&comm_swapped_size, sizeof (int32_t), 1, file_ptr) != 1)
     return (-1);
-
-  if (fwrite (&CommChunk.numChannels, sizeof (int16_t), 1, file_ptr) != 1)
+    
+  int16_t swapped_num_ch = swap_int16(CommChunk.numChannels);
+  if (fwrite (&swapped_num_ch, sizeof (int16_t), 1, file_ptr) != 1)
     return (-1);
-
-  if (fwrite (&CommChunk.numSampleFrames, sizeof (uint32_t), 1,
+    
+  int32_t swapped_num_sample_frames = swap_int32(CommChunk.numSampleFrames);
+  if (fwrite (&swapped_num_sample_frames, sizeof (uint32_t), 1,
 	      file_ptr) != 1)
     return (-1);
-
-  if (fwrite (&CommChunk.sampleSize, sizeof (int16_t), 1, file_ptr) != 1)
+    
+  int16_t swapped_sample_size = swap_int16(CommChunk.sampleSize);
+  if (fwrite (&swapped_sample_size, sizeof (int16_t), 1, file_ptr) != 1)
     return (-1);
-
+    
   if (fwrite (CommChunk.sampleRate, sizeof (uint8_t[10]), 1, file_ptr) != 1)
     return (-1);
 
   /* 960815 FdB put the sound data chunk after the common chunk */
-  if (fwrite (&SndDChunk, sizeof (SoundDataChunk), 1, file_ptr) != 1)
+  if (fwrite (&SndDChunk.ckID, sizeof (ID), 1, file_ptr) != 1)
     return (-1);
+    
+    int32_t swapped_ssnd_size = swap_int32(SndDChunk.ckSize);
+      if (fwrite (&swapped_ssnd_size, sizeof (int32_t), 1, file_ptr) != 1)
+    return (-1);
+    uint32_t swapped_snd_chunk_offset = swap_uint32(SndDChunk.offset);
+      if (fwrite (&swapped_snd_chunk_offset, sizeof (uint32_t), 1, file_ptr) != 1)
+    return (-1);
+    uint32_t swapped_snd_chunk_blocksize = swap_uint32(SndDChunk.blockSize);
+    if (fwrite (&swapped_snd_chunk_blocksize, sizeof (uint32_t), 1, file_ptr) != 1)
+    return (-1);
+    
+    
 
   return (0);
 
@@ -844,7 +967,7 @@ int end_bs (Bit_stream * bs)
   return (bs->eobs);
 }
 
-static void bytes_to_bits (char *w_code, unsigned char *in, int nbytes)
+static void bytes_to_bits (unsigned char *w_code, unsigned char *in, int nbytes)
 {
   int i, j, bpos, d;
 
