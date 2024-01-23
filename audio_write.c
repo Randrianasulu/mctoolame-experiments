@@ -14,7 +14,7 @@ void out_fifo (int32_t pcm_sample[7][3][SBLIMIT],
 	       int done, FILE * outFile, uint32_t *psampFrames, int ch)
 {
   int i, j, l;
-  static short int outsamp[1600];
+  static int16_t outsamp[1600];
   static long k = 0;
 
   //fprintf(stdout,"outfifo: num %i psampframes %i ch %i\n",num, *psampFrames, ch);
@@ -129,7 +129,7 @@ void out_fifo_new (int32_t pcm_sample[7][3][SBLIMIT],
 	       int done, FILE * outFile, uint32_t *psampFrames, int numch)
 {
   int gr, sb, ch;
-  static short int outsamp[1600];
+  static int16_t outsamp[1600];
   static long k = 0;
   static int init=0;
 
@@ -161,7 +161,7 @@ void out_fifo_ml (int32_t pcm_sample[7][3][SBLIMIT],
 {
   int i, j, l;
   int n_ml_ch = fr_ps->header->no_of_multi_lingual_ch;
-  static short int outsamp[1600];
+  static int16_t outsamp[1600];
   static long k = 0;
 
   if (!done)
