@@ -52,7 +52,7 @@ static void read_syn_window (double window[HAN_SIZE])
 #endif
 
 
-int SubBandSynthesis (double *bandPtr, int channel, long *samples)
+int SubBandSynthesis (double *bandPtr, int channel, int32_t *samples)
 {
   long foo;
   register int i, j, k;
@@ -115,7 +115,7 @@ int SubBandSynthesis (double *bandPtr, int channel, long *samples)
 }
 
 /* MFC fixme: i don't think we need a seperate routing for ML */
-int SubBandSynthesis_ml (double *bandPtr, int channel, long *samples)
+int SubBandSynthesis_ml (double *bandPtr, int channel, int32_t *samples)
 {
   long foo;
   register int i, j, k;
