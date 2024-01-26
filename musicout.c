@@ -86,6 +86,10 @@ int main (int argc, char **argv)
   uint32_t frameNum = 0L;
   uint32_t frameMod = 1L;
   uint32_t frameBits;
+  
+  int wavdump = 0;
+  
+
 /*****************************************************************************/
   int hi, hu, ho;
   FILE *fp1=NULL;
@@ -230,7 +234,7 @@ int main (int argc, char **argv)
 	  case 'a':
 	    need_aiff = FALSE;
 	    break;
-
+	  
 	  case 'b':
 	    bits_log = 1;
 	    break;
@@ -267,7 +271,9 @@ int main (int argc, char **argv)
 	  case 't':
 	    tca_log = 1;
 	    break;
-
+	  case 'w':
+	    wavdump = 1;
+	    break;
 	  default:
 	    fprintf (stderr, "%s: unrecognized option %c\n", programName, c);
 	    err = 1;
@@ -374,7 +380,7 @@ int main (int argc, char **argv)
       done = TRUE;
       /* finally write out the buffer */
       out_fifo (*pcm_sample, 3, &fr_ps, done, musicout, &sample_frames,
-		channels);
+		channels, wavdump);
       out_fifo_ml (*pcm_sample_ml, 3, &fr_ps, done, musicout_ml,
 		   &sample_frames_ml);
       deinit_audio_outputs();
@@ -726,7 +732,7 @@ int main (int argc, char **argv)
 				      &((*pcm_sample)[k][j][0]));
 
 	out_fifo (*pcm_sample, 3, &fr_ps, done, musicout,
-		  &sample_frames, channels);
+		  &sample_frames, channels, wavdump);
       }
 
     /* 31/10/95 Ralf Schwalbe LFE output */
@@ -1095,6 +1101,7 @@ void usage (void)
   fprintf (stderr, " -i       write decoded bitstream-information in a file\n");
   /* default: write encoded information */
   fprintf (stderr, " -m       encoded bitstream is a MPEG 1 Layer-2 file\n");
+  fprintf (stderr, " -r       writes bit-rate log \n");
   /* default: decode a MPEG 2 Layer-2 bitstream */
 #ifdef Augmentation_7ch
   fprintf (stderr,
@@ -1103,6 +1110,7 @@ void usage (void)
 #endif
   fprintf (stderr,
 	   " -s       write scf bits per subband to stdout (default: off)\n");
+  fprintf (stderr, " -w       writes wav dump files (default: off) \n");
   fprintf (stderr, " -t       write tca modes to stdout (default: off)\n");
   fprintf (stderr, " inputBS  input bit stream of encoded audio\n");
   fprintf (stderr, " outPCM   output PCM sound file (dflt inName)\n");

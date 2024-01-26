@@ -30,14 +30,14 @@ void recover_CRC_error (int32_t pcm_sample[7][3][SBLIMIT],
   if (error_count == 1) {	/* replicate previous error_free frame */
     done = 1;
     /* flush out fifo */
-    out_fifo (pcm_sample, num, fr_ps, done, outFile, psampFrames, ch);
+    out_fifo (pcm_sample, num, fr_ps, done, outFile, psampFrames, ch, 0);
     /* go back to the beginning of the previous frame */
     offset = sizeof (short int) * samplesPerFrame;
     fseek (outFile, -offset, SEEK_CUR);
     done = 0;
     for (i = 0; i < 12; i++) {
       fread (pcm_sample, 2, samplesPerSlot, outFile);
-      out_fifo (pcm_sample, num, fr_ps, done, outFile, psampFrames, ch);
+      out_fifo (pcm_sample, num, fr_ps, done, outFile, psampFrames, ch, 0);
     }
   } else {			/* mute the frame */
     temp = (short *) pcm_sample;
@@ -45,6 +45,6 @@ void recover_CRC_error (int32_t pcm_sample[7][3][SBLIMIT],
     for (i = 0; i < 2 * 3 * SBLIMIT; i++)
       *temp++ = MUTE;		/* MUTE value is in decoder.h */
     for (i = 0; i < 12; i++)
-      out_fifo (pcm_sample, num, fr_ps, done, outFile, psampFrames, ch);
+      out_fifo (pcm_sample, num, fr_ps, done, outFile, psampFrames, ch, 0);
   }
 }

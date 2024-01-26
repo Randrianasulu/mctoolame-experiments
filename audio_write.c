@@ -11,7 +11,7 @@ static int16_t swap_int16( int16_t val )
 void out_fifo (int32_t pcm_sample[7][3][SBLIMIT],
 	       int num,
 	       frame_params * fr_ps,
-	       int done, FILE * outFile, uint32_t *psampFrames, int ch)
+	       int done, FILE * outFile, uint32_t *psampFrames, int ch, int wavedump)
 {
   int i, j, l;
   static int16_t outsamp[1600];
@@ -21,6 +21,8 @@ void out_fifo (int32_t pcm_sample[7][3][SBLIMIT],
 #define MIKESDODGYWAVEOUTPUT
 #ifdef MIKESDODGYWAVEOUTPUT
   /* Dump seperate wave files for each channel */
+  
+if (wavedump)
   out_fifo_new (pcm_sample, 3, fr_ps, done, outFile, psampFrames,  ch);
 #endif
 
