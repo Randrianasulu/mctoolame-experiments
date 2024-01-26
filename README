@@ -1,0 +1,10 @@
+This program decodes multichannel/multilingual  mpeg2 audio streams
+
+At the moment it only works on little endian machines
+
+Original code from:
+
+mctooLAMEd mpeg 2 layer 2 multi-channel audio DEcoder
+Copyright (C) 2003 Michael Cheng 
+
+see html/readme.html
