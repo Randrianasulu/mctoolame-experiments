@@ -168,11 +168,15 @@ int main (int argc, char **argv)
     exit(1);
     encoded_file_name[f+3] = NULL_CHAR;
     strcpy (encoded_file_name1, encoded_file_name);	/*8/11/92.sr */
-    strcpy (&encoded_file_name1[f], DFLT_OPEXT_DEC);	/*.dec-extension.8/11/92.sr */
+    strcpy (&encoded_file_name1[f], "pcm");	/*.dec-extension.8/11/92.sr */
     printf ("Enter MPEG decoded file name <%s>: ", encoded_file_name1);
     fgets (decoded_file_name, 81, stdin);
-    if (decoded_file_name[0] == '\n')
-      strcpy (decoded_file_name, encoded_file_name1);
+    if (decoded_file_name[0] == '\n') {
+      strcpy (decoded_file_name, encoded_file_name1); } else {
+      int f1 = strlen(decoded_file_name)-1;
+      decoded_file_name[f1] = NULL_CHAR; }
+
+
 
 /* JMZ 10/03/1995 Multilingual */
 
