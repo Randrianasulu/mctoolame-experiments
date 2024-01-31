@@ -1027,6 +1027,8 @@ int main (int argc, char **argv)
     close_bit_stream_r (&bs_ext);
 
   }
+  
+  if(decoded_file_name[0] != NULL_CHAR)
   fclose (musicout);
   if (info.lfe)
     fclose (lfe);
@@ -1071,7 +1073,7 @@ int main (int argc, char **argv)
       ("There were %d frames,  which were not in augmented multichannel!!\n",
        total_error_count_aug);
 #endif
-  if (print_out == 1) {
+  if (print_out == 1 && fp1) {
     fclose (fp1);
     fclose (fp2);
     fclose (fp3);
