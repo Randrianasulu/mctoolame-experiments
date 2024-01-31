@@ -156,7 +156,7 @@ int main (int argc, char **argv)
   programName = argv[0];
   if (argc == 1) {		/* no command line args -> interact */
     do {
-      printf ("Enter encoded file name <required>: ");
+      printf ("Enter encoded file name w/extension <required>: ");
       fgets (encoded_file_name, 81, stdin);
       f = strlen (encoded_file_name) - 4;	/*cut off extension.8/11/92.sr */
       if (encoded_file_name[0] == NULL_CHAR)
@@ -164,11 +164,14 @@ int main (int argc, char **argv)
     } while (encoded_file_name[0] == NULL_CHAR);
 
     printf (">>> Encoded file name is: %s \n", encoded_file_name);
+    if(encoded_file_name[0] == '\n')
+    exit(1);
+    encoded_file_name[f+3] = NULL_CHAR;
     strcpy (encoded_file_name1, encoded_file_name);	/*8/11/92.sr */
     strcpy (&encoded_file_name1[f], DFLT_OPEXT_DEC);	/*.dec-extension.8/11/92.sr */
     printf ("Enter MPEG decoded file name <%s>: ", encoded_file_name1);
     fgets (decoded_file_name, 81, stdin);
-    if (decoded_file_name[0] == NULL_CHAR)
+    if (decoded_file_name[0] == '\n')
       strcpy (decoded_file_name, encoded_file_name1);
 
 /* JMZ 10/03/1995 Multilingual */
