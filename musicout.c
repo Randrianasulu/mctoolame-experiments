@@ -184,7 +184,7 @@ int main (int argc, char **argv)
 
     /* encoded_file_name1 only for help */
     strcpy (encoded_file_name1, encoded_file_name);
-    strcpy (&encoded_file_name1[f], DFLT_IPEXT_EXT);	/* .ext */
+    strcpy (&encoded_file_name1[f-1], DFLT_IPEXT_EXT);	/* .ext */
 
     if (ext_bitstream_name[0] == NULL_CHAR)
       strcpy (ext_bitstream_name, encoded_file_name1);
